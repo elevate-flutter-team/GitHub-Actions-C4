@@ -1,0 +1,26 @@
+name: Flutter Unit Testing Check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  unti-testing-chcek:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Repo
+        uses: actions/checkout@v6
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.32.8
+      - name: Install packages
+        run: flutter pub get
+      - name: Run generator
+        run: flutter pub run build_runner build
+      - name: Run test
+        run: flutter test test
