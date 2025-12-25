@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "Just for test"
+exit 0
