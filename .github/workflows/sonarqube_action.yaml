@@ -1,0 +1,50 @@
+name: SonarQube Action
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  sonarQube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout Code (Fetch-depth 0 is required for Sonar analysis)
+      - name: Checkout Source Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      # 2. Setup Flutter (Required to run tests for coverage)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          flutter-version: 3.35.7
+      # 3. Get Dependencies
+      - name: Install Dependencies
+        run: flutter pub get
+      # 4. Run Tests with Coverage
+      # SonarQube needs 'coverage/lcov.info' to report coverage %
+      - name: Run Tests
+        run: flutter test --coverage
+      # 5. Run SonarQube Scan
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      # 6. Check Quality Gate
+      # This step pauses the workflow until SonarQube finishes processing.
+      # It fails the workflow if the Quality Gate is Red (Failed).
+      - name: SonarQube Quality Gate
+        uses: sonarsource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          # SONAR_HOST_URL is optional here if set in the previous step,
+          # but good practice to include if defining env vars explicitly.
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

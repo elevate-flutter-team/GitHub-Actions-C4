@@ -1,4 +1,22 @@
 #!/bin/bash
 
-echo "Just for test"
+# Define colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+echo -e "🚀 ${GREEN}Starting pre-commit checks...${NC}"
+
+
+# 2. Run Tests (Matches "Run test" step)
+# This runs tests specifically in the 'test/' folder as requested
+echo -e "\n🧪 ${GREEN}Running Flutter Unit Tests...${NC}"
+flutter test test
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}❌ Error: Unit tests failed. Commit aborted.${NC}"
+    exit 1
+fi
+
+echo -e "\n✅ ${GREEN}All checks passed. Proceeding with commit.${NC}"
 exit 0
